@@ -1,0 +1,53 @@
+# Nama workflow yang akan muncul di tab Actions GitHub
+name: Deploy to Oracle Cloud
+
+# Pemicu (trigger) kapan workflow ini harus dijalankan
+on:
+  # Jalankan workflow setiap kali ada 'push' ke server GitHub
+  push:
+    # Hanya untuk branch 'main'
+    branches: [ "main" ]
+
+# Daftar pekerjaan (jobs) yang akan dieksekusi
+jobs:
+  # Nama job, bisa apa saja, contoh: 'deploy'
+  deploy:
+    # Menentukan jenis runner (mesin virtual) yang akan digunakan
+    runs-on: ubuntu-latest
+
+    # Langkah-langkah (steps) yang akan dijalankan secara berurutan
+    steps:
+      # Langkah 1: Checkout Repository
+      # Mengunduh salinan kode Anda ke runner
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Langkah 2: Deploy via SSH
+      # Menggunakan Action dari 'appleboy' untuk terhubung ke server Anda via SSH
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          # Host/IP Address server Anda, diambil dari secrets
+          host: ${{ secrets.SERVER_IP }}
+          
+          # Username untuk login ke server
+          username: ubuntu
+          
+          # Kunci privat SSH untuk autentikasi, diambil dari secrets
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+          # Daftar perintah yang akan dijalankan di server setelah berhasil login
+          script: |
+            # Pindah ke direktori proyek di server Anda
+            # Ganti '/var/www/praktek1cloud' jika path Anda berbeda
+            cd /var/www/web1.com/public_html
+            
+            # Menarik perubahan terbaru dari branch 'main' di GitHub
+            git pull origin main
+            
+            # Memuat ulang Nginx untuk menerapkan perubahan (jika ada)
+            sudo systemctl reload nginx
+            
+            # TAMBAHKAN BARIS INI: Restart PHP-FPM untuk membersihkan cache
+            # Ganti 'php8.1-fpm' jika Anda menggunakan versi PHP yang berbeda
+            sudo systemctl restart php8.1-fpm

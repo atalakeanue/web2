@@ -40,7 +40,7 @@ jobs:
           script: |
             # Pindah ke direktori proyek di server Anda
             # Ganti '/var/www/praktek1cloud' jika path Anda berbeda
-            cd /var/www/web1.com/public_html
+            cd /var/www/web2.com/public_html
             
             # Menarik perubahan terbaru dari branch 'main' di GitHub
             git pull origin main
